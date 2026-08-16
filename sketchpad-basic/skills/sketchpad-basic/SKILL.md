@@ -7,6 +7,14 @@ description: Help creators communicate visual ideas through simple sketches, not
 
 Sketchpad Basic is a lightweight visual thinking tool for creators. It combines rough drawing, text, pasted images, color highlights, notes, and a ChatGPT handoff.
 
+## Opening the app
+
+Use the hosted HTTPS version when opening Sketchpad Basic:
+
+`https://jeremiaharting.github.io/sketchpad-basic/`
+
+Do not try to open the app with a `file://` URL or depend on `http://127.0.0.1:8765`, since those addresses are local to one computer.
+
 When interpreting a Sketchpad Basic drawing:
 
 - Treat marks as visual intent, not finished artwork.
