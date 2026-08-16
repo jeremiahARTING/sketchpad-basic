@@ -277,7 +277,7 @@
     document.querySelector('#imageCanvas').onclick = () => chooseImage('canvas');
     imageInput.onchange = () => { if (imageInput.files.length) status.textContent = 'Image ready'; };
     document.querySelector('#send').onclick = async () => {
-      const guidance = 'Use the sketch and note together. Treat the sketch as a rough concept, explain what it represents, and ask questions if anything is unclear. Pink marks are intentional visual highlights: pay close attention to them and do not ignore them.';
+      const guidance = 'Use the sketch and note together as visual instructions. Pay attention to the layout, placement, shapes, colors, and relationships. Treat every mark as meaningful context, even when the drawing is unfinished, and ask questions if anything is unclear. Pink marks are intentional visual highlights: pay close attention to them and do not ignore them.';
       const customNote = note.value.trim();
       const noteText = customNote ? `${guidance}\nNote: ${customNote}` : guidance;
       const output = document.createElement('canvas');
