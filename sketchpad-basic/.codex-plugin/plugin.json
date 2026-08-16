@@ -1,0 +1,18 @@
+{
+  "name": "sketchpad-basic",
+  "version": "0.1.0",
+  "description": "Sketchpad Basic helps creators communicate ideas to ChatGPT with drawings, notes, images, and clear visual emphasis.",
+  "author": {
+    "name": "Local developer"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Sketchpad Basic",
+    "shortDescription": "Show ChatGPT what you mean with a simple sketch.",
+    "longDescription": "Sketchpad Basic helps creators communicate visual ideas through a simple canvas with drawing tools, color emphasis, text, image pasting, zoom and pan, notes, and a one-click ChatGPT handoff.",
+    "developerName": "Local developer",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "Interpret this Sketchpad Basic drawing and note together. Treat the sketch as a rough concept, pay close attention to pink highlights, and summarize the creator's intent."
+  }
+}

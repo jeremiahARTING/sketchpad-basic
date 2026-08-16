@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sketchpad Basic</title>
+  <style>
+    :root { font-family: Inter, ui-sans-serif, system-ui, sans-serif; color: #171717; background: #f5f5f5; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+    .app { width: min(1100px, 100%); }
+    header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .view-tools { display: flex; gap: 8px; }
+    h1 { margin: 0; font-size: 22px; letter-spacing: -0.03em; }
+    .hint { color: #737373; font-size: 13px; }
+    .board { position: relative; background: #fff; border: 1px solid #d4d4d4; border-radius: 18px; overflow: hidden; box-shadow: 0 12px 36px #0000000d; }
+    .stage { position: relative; overflow: hidden; }
+    canvas { display: block; width: 100%; height: min(68vh, 680px); cursor: crosshair; touch-action: none; background: #fff; }
+    #preview { position: absolute; left: 0; top: 0; pointer-events: none; opacity: .55; background: transparent; }
+    #canvas, #preview { transform-origin: 0 0; }
+    #cursorRing { position: absolute; display: none; pointer-events: none; border: 2px dotted #171717; border-radius: 50%; transform: translate(-50%, -50%); z-index: 2; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px; border-top: 1px solid #e5e5e5; background: #fafafa; }
+    button, select, input { font: inherit; }
+    button { border: 1px solid #d4d4d4; background: #fff; border-radius: 10px; padding: 8px 12px; cursor: pointer; }
+    button:hover { background: #f0f0f0; }
+    button.active { color: #fff; background: #171717; border-color: #171717; }
+    .separator { width: 1px; height: 28px; background: #dedede; margin: 0 4px; }
+    .tool-group { display: inline-flex; gap: 8px; padding-right: 8px; border-right: 1px solid #dedede; }
+    .file-group { display: inline-flex; gap: 8px; align-items: center; }
+    .shape-group { position: relative; display: inline-flex; align-items: center; padding-right: 8px; border-right: 1px solid #dedede; }
+    .shape-group button { min-width: 32px; padding: 6px 8px; font-size: 18px; }
+    .shape-group button.active { color: #fff; background: #171717; }
+    .shape-menu { position: absolute; bottom: 38px; left: 0; z-index: 4; display: flex; flex-direction: column; gap: 4px; padding: 6px; border: 1px solid #d4d4d4; border-radius: 10px; background: #fff; box-shadow: 0 8px 24px #0002; }
+    .shape-menu[hidden] { display: none; }
+    .side-tools .shape-menu { top: 0; bottom: auto; left: 38px; }
+    .color-group { position: relative; display: inline-flex; align-items: center; padding-right: 8px; border-right: 1px solid #dedede; }
+    .color-menu { position: absolute; bottom: 38px; left: 0; z-index: 4; display: flex; flex-direction: column; gap: 6px; padding: 8px; border: 1px solid #d4d4d4; border-radius: 10px; background: #fff; box-shadow: 0 8px 24px #0002; }
+    .color-menu[hidden] { display: none; }
+    .side-tools .color-menu { top: 0; bottom: auto; left: 38px; }
+    .color-swatch { width: 21px; min-width: 21px; height: 21px; padding: 0; border-radius: 50%; border: 2px solid #d4d4d4; }
+    .color-swatch.active { outline: 2px solid #171717; outline-offset: 2px; }
+    .pink-eraser { color: #ec4899; }
+    label { display: inline-flex; align-items: center; gap: 8px; color: #525252; font-size: 13px; }
+    input[type="range"] { width: 120px; accent-color: #171717; }
+    .spacer { flex: 1; }
+    #send { border-color: #171717; }
+    .status { padding: 9px 12px 12px; color: #737373; font-size: 12px; }
+    .note { width: 100%; padding: 10px 12px; border: 0; border-top: 1px solid #e5e5e5; outline: 0; color: #333; background: #fff; }
+    .note::placeholder { color: #999; }
+    .note-area { position: relative; }
+    .note-suggestions { position: absolute; left: 0; right: 0; bottom: 100%; display: none; flex-direction: column; gap: 6px; padding: 8px 12px; border: 1px solid #e5e5e5; background: #fff; box-shadow: 0 -6px 18px #0001; z-index: 5; }
+    .note-suggestions.show { display: flex; }
+    .note-suggestions button { padding: 5px 8px; font-size: 12px; color: #555; }
+    .side-tools { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+    .side-tools .stage { grid-column: 1; grid-row: 1; }
+    .side-tools .toolbar { grid-column: 2; grid-row: 1; flex-direction: column; align-items: stretch; justify-content: center; border-top: 0; border-left: 1px solid #e5e5e5; }
+    .side-tools .toolbar .spacer { display: none; }
+    .side-tools .status { grid-column: 1 / -1; grid-row: 2; }
+    .dialog-backdrop { position: fixed; inset: 0; display: grid; place-items: center; background: #00000033; z-index: 10; }
+    .dialog-backdrop[hidden] { display: none; }
+    .dialog { width: min(320px, calc(100vw - 32px)); padding: 18px; border: 1px solid #d4d4d4; border-radius: 14px; background: #fff; box-shadow: 0 18px 50px #0003; }
+    .dialog h2 { margin: 0 0 12px; font-size: 17px; }
+    .dialog input { width: 100%; padding: 9px 10px; border: 1px solid #bdbdbd; border-radius: 8px; }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+    .choice-dialog p { margin: 0 0 14px; color: #666; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header><div><h1>Sketchpad Basic</h1><span class="hint">Draw an idea.</span></div><div class="view-tools"><button id="labelToggle" aria-label="Switch labels" title="Switch symbols and words">Aa</button><button id="layoutToggle" aria-label="Switch tool position" title="Move tools to the side">↕</button></div></header>
+    <section class="board">
+      <div class="stage"><canvas id="canvas" aria-label="Sketchpad Basic drawing canvas"></canvas><canvas id="preview" aria-hidden="true"></canvas><div id="cursorRing" aria-hidden="true"></div></div>
+      <div class="toolbar">
+        <span class="tool-group" aria-label="Drawing tools">
+          <button id="pen" class="active" data-symbol="<svg aria-hidden='true' width='19' height='19' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='m4 20 3.2-.8L19 7.4a2 2 0 0 0-2.8-2.8L4.4 16.4 4 20Z'></path><path d='m14.8 5.2 4 4'></path></svg>" data-word="Pen" aria-label="Pen" title="Pen"></button>
+          <button id="eraser" class="pink-eraser" data-symbol="<svg aria-hidden='true' width='19' height='19' viewBox='0 0 24 24' fill='currentColor'><path d='m15.5 3 5.5 5.5-10.9 10.9H4.6L2.5 17.3 15.5 3Zm-9.7 14.4 1.2 1.2h2.1l2.2-2.2-3.3-3.3-2.2 2.2v2.1Z'></path></svg>" data-word="Eraser" aria-label="Eraser" title="Eraser"></button>
+          <button id="textTool" data-symbol="T" data-word="Text" aria-label="Text" title="Text">T</button>
+        </span>
+        <span class="shape-group" aria-label="Shapes">
+          <button id="shapeToggle" aria-label="Choose shape" title="Choose shape">□</button>
+          <span id="shapeMenu" class="shape-menu" hidden>
+            <button data-shape="line" aria-label="Line" title="Line">╱</button>
+            <button data-shape="rect" aria-label="Rectangle" title="Rectangle">□</button>
+            <button data-shape="ellipse" aria-label="Circle" title="Circle">○</button>
+            <button data-shape="triangle" aria-label="Triangle" title="Triangle">△</button>
+            <button data-shape="arrow" aria-label="Arrow" title="Arrow">→</button>
+            <button data-shape="star" aria-label="Star" title="Star">☆</button>
+          </span>
+        </span>
+        <span class="color-group" aria-label="Colors">
+          <button id="colorToggle" class="color-swatch active" aria-label="Choose color" title="Choose color" style="background:#ff00ff"></button>
+          <span id="colorMenu" class="color-menu" hidden>
+            <button class="color-swatch" data-color="#000000" aria-label="Black" title="Black" style="background:#000000"></button>
+            <button class="color-swatch" data-color="#555555" aria-label="Gray" title="Gray" style="background:#555555"></button>
+            <button class="color-swatch" data-color="#ff0000" aria-label="Red" title="Red" style="background:#ff0000"></button>
+            <button class="color-swatch" data-color="#0066ff" aria-label="Blue" title="Blue" style="background:#0066ff"></button>
+            <button class="color-swatch" data-color="#008000" aria-label="Green" title="Green" style="background:#008000"></button>
+            <button class="color-swatch" data-color="#ffd000" aria-label="Yellow" title="Yellow" style="background:#ffd000"></button>
+            <button class="color-swatch" data-color="#ff00ff" aria-label="Neon pink" title="Neon pink" style="background:#ff00ff"></button>
+          </span>
+        </span>
+        <label class="opacity-control" title="Opacity">◐ <input id="opacity" type="range" min="10" max="100" value="100" aria-label="Opacity"><output id="opacityValue">100%</output></label>
+        <span id="imageControls" hidden><label>Image size <input id="imageScale" type="range" min="25" max="200" value="100"><output id="imageScaleValue">100%</output></label><label>Rotate <input id="imageRotate" type="range" min="-180" max="180" value="0"><output id="imageRotateValue">0°</output></label></span>
+        <span class="separator"></span>
+        <label>Size <input id="size" type="range" min="1" max="40" value="7"><output id="sizeValue">7</output></label>
+        <span class="separator"></span><button id="zoomOut" aria-label="Zoom out" title="Zoom out">−</button><output id="zoomValue">100%</output><button id="zoomIn" aria-label="Zoom in" title="Zoom in">+</button><button id="zoomReset" aria-label="Reset zoom" title="Reset zoom">1:1</button>
+        <button id="undo" data-symbol="<svg aria-hidden='true' width='19' height='19' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M9 7 4 12l5 5'></path><path d='M4 12h9a7 7 0 0 1 7 7'></path></svg>" data-word="Undo" aria-label="Undo" title="Undo"></button>
+        <button id="redo" data-symbol="<svg aria-hidden='true' width='19' height='19' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='m15 7 5 5-5 5'></path><path d='M20 12h-9a7 7 0 0 0-7 7'></path></svg>" data-word="Redo" aria-label="Redo" title="Redo"></button>
+        <button id="clear" data-symbol="<svg aria-hidden='true' width='19' height='19' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round'><path d='m5 5 14 14M19 5 5 19'></path></svg>" data-word="Clear" aria-label="Clear" title="Clear"></button>
+        <span class="spacer"></span>
+        <span class="file-group" aria-label="File actions"><button id="openImage" aria-label="Open image" title="Open image">▧</button><button id="pasteImage" aria-label="Paste image" title="Paste image">📋</button><button id="save" data-symbol="<svg aria-hidden='true' width='19' height='19' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linejoin='round'><path d='M4 3h13l3 3v15H4V3Z'></path><path d='M8 3v6h8V3M7 21v-7h10v7'></path></svg>" data-word="Save" aria-label="Save" title="Save"></button><button id="export" data-symbol="<svg aria-hidden='true' width='19' height='19' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><path d='M3.5 4h11l3 3v10H3.5V4Z'></path><path d='M7 4v5h7V4M6.5 17v-5h8v5'></path><path d='m14 19 1.2-3.5 5.3-5.3 2.2 2.2-5.3 5.3L14 19Z'></path><path d='m18.9 10.2 2.2 2.2'></path></svg>" data-word="Save As" aria-label="Save as" title="Save as"></button><button id="send" data-symbol="<svg aria-hidden='true' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='9' y='9' width='11' height='11' rx='2'></rect><path d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'></path></svg>" data-word="Copy to Chat" aria-label="Copy sketch to ChatGPT" title="Copy sketch to ChatGPT"></button></span>
+      </div>
+      <div class="note-area"><div id="noteSuggestions" class="note-suggestions" aria-label="Note suggestions"><button type="button" data-note="Explain what this sketch represents.">Explain this</button><button type="button" data-note="Focus on the layout and placement.">Focus on layout</button><button type="button" data-note="Use this as a rough concept, not finished artwork.">Rough concept</button><button type="button" data-note="Describe the shapes and their relationships.">Describe relationships</button><button type="button" data-note="Pay attention to the pink marks.">Watch pink marks</button><button type="button" data-note="The pink marks show the most important areas.">Pink is important</button><button type="button" data-note="Move the part marked in pink.">Move pink-marked part</button><button type="button" data-note="Keep the pink highlights in the final design.">Keep pink highlights</button><button type="button" data-note="Turn this into a clear creative brief.">Make a brief</button><button type="button" data-note="Suggest improvements while preserving the main idea.">Suggest improvements</button><button type="button" data-note="Recreate this as a clean design.">Make a clean design</button><button type="button" data-note="Ask me questions about anything unclear.">Ask questions</button></div><input id="note" class="note" aria-label="Note for ChatGPT" placeholder="Or write your own note…"></div>
+      <div class="status" id="status">Ready</div>
+    </section>
+  </main>
+  <div id="saveDialog" class="dialog-backdrop" hidden>
+    <form class="dialog" id="saveForm">
+      <h2>Save as</h2>
+      <input id="filename" aria-label="File name" value="sketchpad-basic" autocomplete="off">
+      <div class="dialog-actions"><button type="button" id="cancelSave">Cancel</button><button type="submit">Save</button></div>
+    </form>
+  </div>
+  <div id="imageDialog" class="dialog-backdrop" hidden>
+    <div class="dialog choice-dialog">
+      <h2>Open image</h2>
+      <p>Choose an image to add to the canvas.</p>
+      <input id="imageInput" type="file" accept="image/*" aria-label="Choose image">
+      <div class="dialog-actions"><button type="button" id="cancelImage">Cancel</button><button type="button" id="imageCanvas">Add image</button></div>
+    </div>
+  </div>
+  <div id="textDialog" class="dialog-backdrop" hidden><form class="dialog" id="textForm"><h2>Add text</h2><input id="textInput" aria-label="Text" placeholder="Type something" autocomplete="off"><label>Size <input id="textSize" type="range" min="12" max="96" value="32"><output id="textSizeValue">32</output></label><div class="dialog-actions"><button type="button" id="cancelText">Cancel</button><button type="submit">Add</button></div></form></div>
+  <script>
+    const canvas = document.querySelector('#canvas');
+    const ctx = canvas.getContext('2d');
+    const preview = document.querySelector('#preview');
+    const previewCtx = preview.getContext('2d');
+    const pen = document.querySelector('#pen');
+    const eraser = document.querySelector('#eraser');
+    const size = document.querySelector('#size');
+    const sizeValue = document.querySelector('#sizeValue');
+    const status = document.querySelector('#status');
+    const note = document.querySelector('#note');
+    const noteSuggestions = document.querySelector('#noteSuggestions');
+    note.onfocus = () => { if (!note.value) noteSuggestions.classList.add('show'); };
+    note.oninput = () => { if (note.value) noteSuggestions.classList.remove('show'); };
+    document.querySelectorAll('[data-note]').forEach(button => button.onclick = () => { note.value = button.dataset.note; noteSuggestions.classList.remove('show'); note.focus(); });
+    const cursorRing = document.querySelector('#cursorRing');
+    const board = document.querySelector('.board');
+    const labelToggle = document.querySelector('#labelToggle');
+    const layoutToggle = document.querySelector('#layoutToggle');
+    const saveDialog = document.querySelector('#saveDialog');
+    const saveForm = document.querySelector('#saveForm');
+    const filenameInput = document.querySelector('#filename');
+    const imageDialog = document.querySelector('#imageDialog');
+    const imageInput = document.querySelector('#imageInput');
+    const textTool = document.querySelector('#textTool');
+    const textDialog = document.querySelector('#textDialog');
+    const textForm = document.querySelector('#textForm');
+    const textInput = document.querySelector('#textInput');
+    const textSize = document.querySelector('#textSize');
+    const textSizeValue = document.querySelector('#textSizeValue');
+    let textPoint = null;
+    let imageMode = 'canvas';
+    let drawing = false, panning = false, panStart = null, pendingImage = null, tool = 'pen', shape = null, start = null, last = null, color = '#ff00ff', transparent = true, opacity = 1, history = [], redoStack = [], words = false, zoom = 1, panX = 0, panY = 0;
+    const neonPink = '#ff00ff';
+    let toolColors = JSON.parse(sessionStorage.getItem('sketchpad-basic-tool-colors') || '{}');
+    function colorKey() { return shape ? `shape:${shape}` : tool; }
+    function useToolColor() { color = toolColors[colorKey()] || neonPink; colorToggle.style.background = color; }
+    function rememberToolColor() { toolColors[colorKey()] = color; sessionStorage.setItem('sketchpad-basic-tool-colors', JSON.stringify(toolColors)); }
+    const opacityInput = document.querySelector('#opacity');
+    const opacityValue = document.querySelector('#opacityValue');
+    const colorToggle = document.querySelector('#colorToggle');
+    const colorMenu = document.querySelector('#colorMenu');
+    useToolColor();
+    const zoomValue = document.querySelector('#zoomValue');
+    const imageControls = document.querySelector('#imageControls');
+    const imageScale = document.querySelector('#imageScale');
+    const imageScaleValue = document.querySelector('#imageScaleValue');
+    const imageRotate = document.querySelector('#imageRotate');
+    const imageRotateValue = document.querySelector('#imageRotateValue');
+    const shapeToggle = document.querySelector('#shapeToggle');
+    const shapeMenu = document.querySelector('#shapeMenu');
+
+    function updateLabels() {
+      document.querySelectorAll('[data-symbol][data-word]').forEach(button => {
+        button.innerHTML = words ? button.dataset.word : button.dataset.symbol;
+        button.title = words ? button.dataset.word : `Use ${button.dataset.word}`;
+      });
+      labelToggle.textContent = words ? '✎' : 'Aa';
+      labelToggle.title = words ? 'Use symbols' : 'Use words';
+    }
+    labelToggle.onclick = () => { words = !words; updateLabels(); };
+    layoutToggle.onclick = () => { board.classList.toggle('side-tools'); layoutToggle.textContent = board.classList.contains('side-tools') ? '↔' : '↕'; layoutToggle.title = board.classList.contains('side-tools') ? 'Move tools to bottom' : 'Move tools to side'; resize(); };
+
+    function resize() {
+      const old = document.createElement('canvas');
+      old.width = canvas.width; old.height = canvas.height;
+      if (canvas.width && canvas.height) old.getContext('2d').drawImage(canvas, 0, 0);
+      const ratio = Math.max(1, window.devicePixelRatio || 1);
+      const width = canvas.clientWidth, height = canvas.clientHeight;
+      canvas.width = Math.round(width * ratio); canvas.height = Math.round(height * ratio);
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      preview.width = canvas.width; preview.height = canvas.height; preview.style.width = `${width}px`; preview.style.height = `${height}px`;
+      previewCtx.setTransform(ratio, 0, 0, ratio, 0, 0); previewCtx.lineCap = 'round'; previewCtx.lineJoin = 'round';
+      if (old.width) ctx.drawImage(old, 0, 0, old.width, old.height, 0, 0, width, height);
+      applyView();
+    }
+    function applyView() { const transform = `translate(${panX}px, ${panY}px) scale(${zoom})`; canvas.style.transform = transform; preview.style.transform = transform; zoomValue.value = `${Math.round(zoom * 100)}%`; }
+    function point(e) { const r = canvas.getBoundingClientRect(); return { x: (e.clientX - r.left) / zoom, y: (e.clientY - r.top) / zoom }; }
+    function drawPendingImage(p = pendingImage?.point) { if (!pendingImage || !p) return; previewCtx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight); const maxW = canvas.clientWidth * .55, maxH = canvas.clientHeight * .55; const baseScale = Math.min(maxW / pendingImage.image.width, maxH / pendingImage.image.height, 1); const scale = baseScale * pendingImage.scale; const w = pendingImage.image.width * scale, h = pendingImage.image.height * scale; pendingImage.size = { w, h }; pendingImage.point = p; previewCtx.save(); previewCtx.globalAlpha = .7; previewCtx.translate(p.x, p.y); previewCtx.rotate(pendingImage.rotation * Math.PI / 180); previewCtx.drawImage(pendingImage.image, -w / 2, -h / 2, w, h); previewCtx.restore(); previewCtx.globalAlpha = 1; if (pendingImage.anchored) { previewCtx.strokeStyle = '#ff00ff'; previewCtx.lineWidth = 2; previewCtx.setLineDash([4, 3]); previewCtx.beginPath(); previewCtx.arc(p.x, p.y, 9, 0, Math.PI * 2); previewCtx.stroke(); previewCtx.setLineDash([]); } }
+    function loadPastedImage(file) { const image = new Image(); image.onload = () => { pendingImage = { image, point: { x: canvas.clientWidth / 2, y: canvas.clientHeight / 2 }, size: null, scale: 1, rotation: 0, anchored: false }; imageScale.value = 100; imageRotate.value = 0; imageScaleValue.value = '100%'; imageRotateValue.value = '0°'; imageControls.hidden = false; drawPendingImage(); status.textContent = 'Move image, then click once to anchor it'; }; image.src = URL.createObjectURL(file); }
+    window.addEventListener('paste', event => { const item = [...(event.clipboardData?.items || [])].find(entry => entry.type.startsWith('image/')); if (!item) return; event.preventDefault(); loadPastedImage(item.getAsFile()); });
+    document.querySelector('#pasteImage').onclick = async () => { try { const items = await navigator.clipboard.read(); for (const clipboardItem of items) { const type = clipboardItem.types.find(value => value.startsWith('image/')); if (type) { loadPastedImage(await clipboardItem.getType(type)); return; } } status.textContent = 'No image found on clipboard'; } catch (error) { status.textContent = 'Clipboard access was blocked — use Ctrl+V or allow permission'; } };
+    window.addEventListener('keydown', event => { if (event.key === 'Escape' && pendingImage) { pendingImage = null; imageControls.hidden = true; previewCtx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight); status.textContent = 'Paste cancelled'; } });
+    imageScale.oninput = () => { if (!pendingImage) return; pendingImage.scale = Number(imageScale.value) / 100; imageScaleValue.value = `${imageScale.value}%`; drawPendingImage(); };
+    imageRotate.oninput = () => { if (!pendingImage) return; pendingImage.rotation = Number(imageRotate.value); imageRotateValue.value = `${imageRotate.value}°`; drawPendingImage(); };
+    function snapshot() { history.push(canvas.toDataURL()); if (history.length > 40) history.shift(); redoStack = []; }
+    function restore(url) { const image = new Image(); image.onload = () => { ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight); ctx.drawImage(image, 0, 0, canvas.clientWidth, canvas.clientHeight); }; image.src = url; }
+    function updateCursor(e) {
+      const p = point(e); const diameter = Number(size.value);
+      cursorRing.style.left = `${p.x}px`; cursorRing.style.top = `${p.y}px`;
+      cursorRing.style.width = `${diameter}px`; cursorRing.style.height = `${diameter}px`;
+      cursorRing.style.display = tool === 'eraser' ? 'block' : 'none';
+    }
+    function setTool(next) { tool = next; shape = null; useToolColor(); if (tool === 'eraser') { size.value = 30; sizeValue.value = 30; } pen.classList.toggle('active', tool === 'pen'); eraser.classList.toggle('active', tool === 'eraser'); cursorRing.style.display = tool === 'eraser' ? 'block' : 'none'; cursorRing.style.width = `${size.value}px`; cursorRing.style.height = `${size.value}px`; status.textContent = tool === 'pen' ? 'Pen' : tool === 'text' ? 'Text' : 'Eraser'; }
+
+    function drawShape(kind, a, b, target = ctx) {
+      const x = Math.min(a.x, b.x), y = Math.min(a.y, b.y), w = Math.abs(b.x - a.x), h = Math.abs(b.y - a.y);
+      target.strokeStyle = color; target.globalAlpha = target === previewCtx ? opacity * .55 : opacity; target.lineWidth = Number(size.value); target.lineCap = 'round'; target.lineJoin = 'round'; target.beginPath();
+      if (kind === 'line') { target.moveTo(a.x, a.y); target.lineTo(b.x, b.y); }
+      if (kind === 'rect') target.rect(x, y, w, h);
+      if (kind === 'ellipse') target.ellipse(x + w / 2, y + h / 2, Math.max(w / 2, 1), Math.max(h / 2, 1), 0, 0, Math.PI * 2);
+      if (kind === 'triangle') { target.moveTo(x + w / 2, y); target.lineTo(x + w, y + h); target.lineTo(x, y + h); target.closePath(); }
+      if (kind === 'arrow') { target.moveTo(a.x, a.y); target.lineTo(b.x, b.y); const angle = Math.atan2(b.y - a.y, b.x - a.x); const head = 12 + Number(size.value); target.moveTo(b.x, b.y); target.lineTo(b.x - head * Math.cos(angle - .5), b.y - head * Math.sin(angle - .5)); target.moveTo(b.x, b.y); target.lineTo(b.x - head * Math.cos(angle + .5), b.y - head * Math.sin(angle + .5)); }
+      if (kind === 'star') { const cx = x + w / 2, cy = y + h / 2, r = Math.max(Math.min(w, h) / 2, 1); for (let i = 0; i < 10; i++) { const radius = i % 2 ? r * .42 : r; const angle = -Math.PI / 2 + i * Math.PI / 5; const px = cx + Math.cos(angle) * radius, py = cy + Math.sin(angle) * radius; i ? target.lineTo(px, py) : target.moveTo(px, py); } target.closePath(); }
+      target.stroke();
+    }
+    canvas.addEventListener('pointerdown', e => { if (e.button === 1 || (e.button === 0 && e.shiftKey)) { panning = true; panStart = { x: e.clientX - panX, y: e.clientY - panY }; canvas.setPointerCapture(e.pointerId); return; } if (pendingImage && e.button === 0) { const p = point(e); const distance = Math.hypot(p.x - pendingImage.point.x, p.y - pendingImage.point.y); if (!pendingImage.anchored) { pendingImage.point = p; pendingImage.anchored = true; drawPendingImage(); status.textContent = 'Image anchored — adjust size or rotate, then click elsewhere'; return; } if (distance < 18) { pendingImage.anchored = false; drawPendingImage(); status.textContent = 'Anchor released — click to set a new position'; return; } snapshot(); const { w, h } = pendingImage.size; ctx.save(); ctx.translate(pendingImage.point.x, pendingImage.point.y); ctx.rotate(pendingImage.rotation * Math.PI / 180); ctx.drawImage(pendingImage.image, -w / 2, -h / 2, w, h); ctx.restore(); pendingImage = null; imageControls.hidden = true; previewCtx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight); status.textContent = 'Image placed'; return; } if (tool === 'text') { textPoint = point(e); textDialog.hidden = false; textInput.value = ''; requestAnimationFrame(() => { textInput.focus(); textInput.select(); }); return; } if (e.button !== 0) return; snapshot(); drawing = true; start = point(e); last = start; canvas.setPointerCapture(e.pointerId); });
+    canvas.addEventListener('pointermove', e => { if (panning) { panX = e.clientX - panStart.x; panY = e.clientY - panStart.y; applyView(); return; } updateCursor(e); const p = point(e); if (pendingImage) { if (!pendingImage.anchored) drawPendingImage(p); return; } if (!drawing) return; if (shape) { previewCtx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight); drawShape(shape, start, p, previewCtx); return; } ctx.strokeStyle = tool === 'pen' ? color : '#fff'; ctx.globalAlpha = opacity; ctx.lineWidth = Number(size.value); ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(p.x, p.y); ctx.stroke(); last = p; });
+    canvas.addEventListener('pointerleave', () => { if (!drawing) cursorRing.style.display = 'none'; });
+    canvas.addEventListener('pointerenter', e => { updateCursor(e); });
+    canvas.addEventListener('pointerup', e => { if (panning) { panning = false; return; } if (drawing && shape) { previewCtx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight); drawShape(shape, start, point(e)); } drawing = false; start = null; last = null; });
+    canvas.addEventListener('pointercancel', () => { previewCtx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight); drawing = false; start = null; last = null; });
+    document.querySelector('#zoomIn').onclick = () => { zoom = Math.min(4, zoom + .25); applyView(); };
+    document.querySelector('#zoomOut').onclick = () => { zoom = Math.max(1, zoom - .25); if (zoom === 1) { panX = 0; panY = 0; } applyView(); };
+    document.querySelector('#zoomReset').onclick = () => { zoom = 1; panX = 0; panY = 0; applyView(); };
+    shapeToggle.onclick = () => { shapeMenu.hidden = !shapeMenu.hidden; };
+    document.querySelectorAll('[data-shape]').forEach(button => button.onclick = () => { shape = button.dataset.shape; tool = 'pen'; useToolColor(); shapeToggle.textContent = button.textContent; shapeMenu.hidden = true; pen.classList.remove('active'); eraser.classList.remove('active'); document.querySelectorAll('[data-shape]').forEach(item => item.classList.remove('active')); button.classList.add('active'); status.textContent = button.getAttribute('aria-label'); });
+    colorToggle.onclick = () => { colorMenu.hidden = !colorMenu.hidden; };
+    document.querySelectorAll('[data-color]').forEach(button => button.onclick = () => { color = button.dataset.color; rememberToolColor(); colorToggle.style.background = color; colorMenu.hidden = true; status.textContent = button.getAttribute('aria-label'); });
+    pen.onclick = () => { document.querySelectorAll('[data-shape]').forEach(item => item.classList.remove('active')); setTool('pen'); }; eraser.onclick = () => { document.querySelectorAll('[data-shape]').forEach(item => item.classList.remove('active')); setTool('eraser'); }; textTool.onclick = () => { document.querySelectorAll('[data-shape]').forEach(item => item.classList.remove('active')); setTool('text'); status.textContent = 'Click the canvas where you want the text'; };
+    textSize.oninput = () => { textSizeValue.value = textSize.value; };
+    document.querySelector('#cancelText').onclick = () => { textDialog.hidden = true; };
+    textForm.onsubmit = event => { event.preventDefault(); const value = textInput.value.trim(); if (value && textPoint) { snapshot(); ctx.globalAlpha = opacity; ctx.fillStyle = color; ctx.font = `${textSize.value}px sans-serif`; ctx.textBaseline = 'top'; ctx.fillText(value, textPoint.x, textPoint.y); status.textContent = 'Text added'; } textDialog.hidden = true; textPoint = null; };
+    size.oninput = () => { sizeValue.value = size.value; cursorRing.style.width = `${size.value}px`; cursorRing.style.height = `${size.value}px`; };
+    document.querySelector('#undo').onclick = () => { if (!history.length) return; redoStack.push(canvas.toDataURL()); restore(history.pop()); status.textContent = 'Undid last stroke'; };
+    document.querySelector('#redo').onclick = () => { if (!redoStack.length) return; history.push(canvas.toDataURL()); restore(redoStack.pop()); status.textContent = 'Redid stroke'; };
+    document.querySelector('#clear').onclick = () => { snapshot(); ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight); status.textContent = 'Cleared'; };
+    function saveFile(filename) {
+      const output = document.createElement('canvas'); output.width = canvas.width; output.height = canvas.height; const outputCtx = output.getContext('2d');
+      if (!transparent) { outputCtx.fillStyle = '#fff'; outputCtx.fillRect(0, 0, output.width, output.height); }
+      outputCtx.drawImage(canvas, 0, 0); const link = document.createElement('a'); link.download = filename; link.href = output.toDataURL('image/png'); link.click(); status.textContent = 'Saved';
+    }
+    document.querySelector('#save').onclick = () => saveFile('sketchpad-basic.png');
+    opacityInput.oninput = () => { opacity = Number(opacityInput.value) / 100; opacityValue.value = `${opacityInput.value}%`; status.textContent = `Opacity ${opacityInput.value}%`; };
+    document.querySelector('#export').onclick = () => { saveDialog.hidden = false; filenameInput.focus(); filenameInput.select(); };
+    document.querySelector('#cancelSave').onclick = () => { saveDialog.hidden = true; };
+    saveForm.onsubmit = event => { event.preventDefault(); const name = filenameInput.value.trim() || 'sketchpad-basic'; const filename = name.toLowerCase().endsWith('.png') ? name : `${name}.png`; saveFile(filename); saveDialog.hidden = true; };
+    document.querySelector('#openImage').onclick = () => { imageDialog.hidden = false; };
+    document.querySelector('#cancelImage').onclick = () => { imageDialog.hidden = true; };
+    function chooseImage(mode) { if (!imageInput.files.length) { status.textContent = 'Choose an image first'; return; } imageMode = mode; imageDialog.hidden = true; const file = imageInput.files[0]; const reader = new FileReader(); reader.onload = event => { const image = new Image(); image.onload = () => { const url = event.target.result; if (imageMode === 'background') { canvas.style.backgroundImage = `url(${url})`; canvas.style.backgroundSize = 'contain'; canvas.style.backgroundPosition = 'center'; canvas.style.backgroundRepeat = 'no-repeat'; status.textContent = 'Background added'; } else { snapshot(); const scale = Math.min(canvas.clientWidth / image.width, canvas.clientHeight / image.height); const w = image.width * scale, h = image.height * scale; ctx.drawImage(image, (canvas.clientWidth - w) / 2, (canvas.clientHeight - h) / 2, w, h); status.textContent = 'Image added'; } }; image.onerror = () => { status.textContent = 'Could not open image'; }; image.src = event.target.result; }; reader.readAsDataURL(file); }
+    document.querySelector('#imageCanvas').onclick = () => chooseImage('canvas');
+    imageInput.onchange = () => { if (imageInput.files.length) status.textContent = 'Image ready'; };
+    document.querySelector('#send').onclick = async () => {
+      const guidance = 'Use the sketch and note together. Treat the sketch as a rough concept, explain what it represents, and ask questions if anything is unclear. Pink marks are intentional visual highlights: pay close attention to them and do not ignore them.';
+      const customNote = note.value.trim();
+      const noteText = customNote ? `${guidance}\nNote: ${customNote}` : guidance;
+      const output = document.createElement('canvas');
+      const noteLines = noteText.split('\n').flatMap(paragraph => {
+        const words = paragraph.split(/\s+/).filter(Boolean);
+        const lines = [];
+        let line = '';
+        words.forEach(word => {
+          const candidate = line ? `${line} ${word}` : word;
+          if (candidate.length > 52 && line) { lines.push(line); line = word; } else { line = candidate; }
+        });
+        if (line) lines.push(line);
+        return lines;
+      });
+      const noteHeight = noteLines.length ? 42 + noteLines.length * 24 : 0;
+      output.width = canvas.width;
+      output.height = canvas.height + noteHeight;
+      const outputCtx = output.getContext('2d');
+      outputCtx.fillStyle = '#fff';
+      outputCtx.fillRect(0, 0, output.width, output.height);
+      outputCtx.drawImage(canvas, 0, 0);
+      if (noteLines.length) {
+        outputCtx.strokeStyle = '#ddd';
+        outputCtx.beginPath(); outputCtx.moveTo(24, canvas.height + 16); outputCtx.lineTo(output.width - 24, canvas.height + 16); outputCtx.stroke();
+        outputCtx.fillStyle = '#222';
+        outputCtx.font = '16px Arial, sans-serif';
+        noteLines.forEach((line, index) => outputCtx.fillText(line, 24, canvas.height + 42 + index * 24));
+      }
+      const blob = await new Promise(resolve => output.toBlob(resolve, 'image/png'));
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        status.textContent = noteLines.length ? 'Copied sketch + note — paste into ChatGPT' : 'Copied image — paste into ChatGPT';
+      } catch (error) {
+        const link = document.createElement('a'); link.download = 'sketchpad-basic.png'; link.href = URL.createObjectURL(blob); link.click();
+        status.textContent = 'Saved — add it to chat';
+      }
+    };
+    window.addEventListener('resize', resize); updateLabels(); resize();
+  </script>
+</body>
+</html>
