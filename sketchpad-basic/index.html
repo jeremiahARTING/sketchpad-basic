@@ -33,6 +33,7 @@
     .shape-group [data-shape="rect"]::before { content: ''; width: 18px; height: 18px; border: 2px solid currentColor; box-sizing: border-box; }
     .shape-group [data-shape="ellipse"]::before { content: ''; width: 20px; height: 20px; border: 2px solid currentColor; border-radius: 50%; box-sizing: border-box; }
     .file-group svg { width: 22px; height: 22px; }
+    #export svg { transform: scale(1.22); }
     .shape-group button.active { color: #fff; background: #171717; }
     .shape-menu { position: absolute; bottom: 38px; left: 0; z-index: 4; display: flex; flex-direction: column; gap: 4px; padding: 6px; border: 1px solid #d4d4d4; border-radius: 10px; background: #fff; box-shadow: 0 8px 24px #0002; }
     .shape-menu[hidden] { display: none; }
@@ -251,7 +252,7 @@
     document.querySelector('#zoomOut').onclick = () => { zoom = Math.max(1, zoom - .25); if (zoom === 1) { panX = 0; panY = 0; } applyView(); };
     document.querySelector('#zoomReset').onclick = () => { zoom = 1; panX = 0; panY = 0; applyView(); };
     shapeToggle.onclick = () => { shapeMenu.hidden = !shapeMenu.hidden; };
-    document.querySelectorAll('[data-shape]').forEach(button => button.onclick = () => { shape = button.dataset.shape; tool = 'pen'; useToolColor(); shapeToggle.dataset.shape = button.dataset.shape; shapeToggle.textContent = button.textContent; shapeMenu.hidden = true; pen.classList.remove('active'); eraser.classList.remove('active'); document.querySelectorAll('[data-shape]').forEach(item => item.classList.remove('active')); button.classList.add('active'); status.textContent = button.getAttribute('aria-label'); });
+    document.querySelectorAll('.shape-menu [data-shape]').forEach(button => button.onclick = () => { shape = button.dataset.shape; tool = 'pen'; useToolColor(); shapeToggle.dataset.shape = button.dataset.shape; shapeToggle.textContent = button.textContent; shapeMenu.hidden = true; pen.classList.remove('active'); eraser.classList.remove('active'); document.querySelectorAll('.shape-menu [data-shape]').forEach(item => item.classList.remove('active')); button.classList.add('active'); status.textContent = button.getAttribute('aria-label'); });
     colorToggle.onclick = () => { colorMenu.hidden = !colorMenu.hidden; };
     document.querySelectorAll('[data-color]').forEach(button => button.onclick = () => { color = button.dataset.color; rememberToolColor(); colorToggle.style.background = color; colorMenu.hidden = true; status.textContent = button.getAttribute('aria-label'); });
     pen.onclick = () => { document.querySelectorAll('[data-shape]').forEach(item => item.classList.remove('active')); setTool('pen'); }; eraser.onclick = () => { document.querySelectorAll('[data-shape]').forEach(item => item.classList.remove('active')); setTool('eraser'); }; textTool.onclick = () => { document.querySelectorAll('[data-shape]').forEach(item => item.classList.remove('active')); setTool('text'); status.textContent = 'Click the canvas where you want the text'; };
