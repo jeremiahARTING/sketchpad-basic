@@ -1,0 +1,20 @@
+{
+  "name": "sketchpad-basic",
+  "interface": {
+    "displayName": "Sketchpad Basic"
+  },
+  "plugins": [
+    {
+      "name": "sketchpad-basic",
+      "source": {
+        "source": "local",
+        "path": "./sketchpad-basic"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
