@@ -202,8 +202,7 @@
     const textSize = document.querySelector('#textSize');
     const textSizeValue = document.querySelector('#textSizeValue');
     let textPoint = null;
-    let imageMode = 'canvas';
-    let drawing = false, panning = false, panStart = null, pendingImage = null, pendingShape = null, pendingText = null, selecting = false, selectionStart = null, selection = null, tool = 'pen', shape = null, start = null, last = null, color = '#ff00ff', transparent = true, opacity = 1, history = [], redoStack = [], words = false, zoom = 1, panX = 0, panY = 0;
+    let drawing = false, panning = false, panStart = null, pendingImage = null, pendingShape = null, pendingText = null, selecting = false, selectionStart = null, selection = null, tool = 'pen', shape = null, start = null, last = null, color = '#ff00ff', opacity = 1, history = [], redoStack = [], words = false, zoom = 1, panX = 0, panY = 0;
     const neonPink = '#ff00ff';
     let toolColors = JSON.parse(sessionStorage.getItem('sketchpad-basic-tool-colors') || '{}');
     function colorKey() { return shape ? `shape:${shape}` : tool; }
@@ -318,7 +317,6 @@
     document.querySelector('#clear').onclick = () => { snapshot(); ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight); status.textContent = 'Cleared'; };
     function saveFile(filename) {
       const output = document.createElement('canvas'); output.width = canvas.width; output.height = canvas.height; const outputCtx = output.getContext('2d');
-      if (!transparent) { outputCtx.fillStyle = '#fff'; outputCtx.fillRect(0, 0, output.width, output.height); }
       outputCtx.drawImage(canvas, 0, 0); const link = document.createElement('a'); link.download = filename; link.href = output.toDataURL('image/png'); link.click(); status.textContent = 'Saved';
     }
     document.querySelector('#save').onclick = () => saveFile('sketchpad-basic.png');
@@ -328,8 +326,8 @@
     saveForm.onsubmit = event => { event.preventDefault(); const name = filenameInput.value.trim() || 'sketchpad-basic'; const filename = name.toLowerCase().endsWith('.png') ? name : `${name}.png`; saveFile(filename); saveDialog.hidden = true; };
     document.querySelector('#openImage').onclick = () => { imageDialog.hidden = false; };
     document.querySelector('#cancelImage').onclick = () => { imageDialog.hidden = true; };
-    function chooseImage(mode) { if (!imageInput.files.length) { status.textContent = 'Choose an image first'; return; } imageMode = mode; imageDialog.hidden = true; const file = imageInput.files[0]; const reader = new FileReader(); reader.onload = event => { const image = new Image(); image.onload = () => { const url = event.target.result; if (imageMode === 'background') { canvas.style.backgroundImage = `url(${url})`; canvas.style.backgroundSize = 'contain'; canvas.style.backgroundPosition = 'center'; canvas.style.backgroundRepeat = 'no-repeat'; status.textContent = 'Background added'; } else { snapshot(); const scale = Math.min(canvas.clientWidth / image.width, canvas.clientHeight / image.height); const w = image.width * scale, h = image.height * scale; ctx.drawImage(image, (canvas.clientWidth - w) / 2, (canvas.clientHeight - h) / 2, w, h); status.textContent = 'Image added'; } }; image.onerror = () => { status.textContent = 'Could not open image'; }; image.src = event.target.result; }; reader.readAsDataURL(file); }
-    document.querySelector('#imageCanvas').onclick = () => chooseImage('canvas');
+    function chooseImage() { if (!imageInput.files.length) { status.textContent = 'Choose an image first'; return; } imageDialog.hidden = true; const file = imageInput.files[0]; const reader = new FileReader(); reader.onload = event => { const image = new Image(); image.onload = () => { snapshot(); const scale = Math.min(canvas.clientWidth / image.width, canvas.clientHeight / image.height); const w = image.width * scale, h = image.height * scale; ctx.drawImage(image, (canvas.clientWidth - w) / 2, (canvas.clientHeight - h) / 2, w, h); status.textContent = 'Image added'; }; image.onerror = () => { status.textContent = 'Could not open image'; }; image.src = event.target.result; }; reader.readAsDataURL(file); }
+    document.querySelector('#imageCanvas').onclick = chooseImage;
     const cameraBrightness = document.querySelector('#cameraBrightness');
     const cameraContrast = document.querySelector('#cameraContrast');
     const cameraSaturation = document.querySelector('#cameraSaturation');
