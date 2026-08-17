@@ -82,6 +82,12 @@
     .camera-dialog .camera-adjustments label { grid-template-columns: 1fr; gap: 1px; }
     .camera-dialog .camera-adjustments output { text-align: right; }
     .camera-adjustments input[type="range"] { width: 100%; }
+    @media (pointer: coarse) {
+      button { min-width: 44px; min-height: 44px; }
+      .shape-group button { width: 44px; height: 44px; }
+      .color-swatch { width: 44px; min-width: 44px; height: 44px; }
+      .camera-tools button, .camera-tools select { min-height: 44px; }
+    }
   </style>
 </head>
 <body>
