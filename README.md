@@ -5,6 +5,7 @@ Sketchpad Basic is a lightweight visual communication plugin for ChatGPT. Draw a
 ## What it does
 
 - Draw with a pen, erase, add text, and place simple shapes
+- Preview symbols with an anchor point, size adjustment, and rotation before committing them
 - Use bright pink highlights when you want to call attention to an area
 - Paste, open, or capture camera images, then move, resize, and rotate them before placing
 - Use camera tools such as switch camera, timer, crop, and optional advanced adjustments
