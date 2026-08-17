@@ -74,6 +74,11 @@
     .camera-adjustments { display: grid; gap: 2px; margin-top: 7px; }
     .camera-adjustments label { display: grid; grid-template-columns: 68px 1fr 34px; gap: 5px; align-items: center; color: #666; font-size: 11px; }
     .camera-adjustments input[type="range"] { height: 14px; }
+    .camera-dialog { position: relative; width: min(560px, calc(100vw - 32px)); }
+    .camera-dialog .camera-preview { width: calc(100% - 150px); min-height: 220px; }
+    .camera-dialog .camera-adjustments { position: absolute; top: 66px; right: 18px; width: 132px; margin: 0; }
+    .camera-dialog .camera-adjustments label { grid-template-columns: 1fr; gap: 1px; }
+    .camera-dialog .camera-adjustments output { text-align: right; }
     .camera-adjustments input[type="range"] { width: 100%; }
   </style>
 </head>
@@ -134,7 +139,7 @@
     </form>
   </div>
   <div id="imageDialog" class="dialog-backdrop" hidden>
-    <div class="dialog choice-dialog">
+    <div class="dialog choice-dialog camera-dialog">
       <h2>Open image</h2>
       <p>Choose an image to add to the canvas.</p>
       <input id="imageInput" type="file" accept="image/*" aria-label="Choose image">
