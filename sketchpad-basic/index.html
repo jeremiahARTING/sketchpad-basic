@@ -141,23 +141,23 @@
     </section>
   </main>
   <div id="saveDialog" class="dialog-backdrop" hidden>
-    <form class="dialog" id="saveForm">
-      <h2>Save as</h2>
+    <form class="dialog" id="saveForm" role="dialog" aria-modal="true" aria-labelledby="saveTitle">
+      <h2 id="saveTitle">Save as</h2>
       <input id="filename" aria-label="File name" value="sketchpad-basic" autocomplete="off">
       <div class="dialog-actions"><button type="button" id="cancelSave">Cancel</button><button type="submit">Save</button></div>
     </form>
   </div>
   <div id="imageDialog" class="dialog-backdrop" hidden>
-    <div class="dialog choice-dialog camera-dialog">
-      <h2>Open image</h2>
+    <div class="dialog choice-dialog camera-dialog" role="dialog" aria-modal="true" aria-labelledby="imageTitle">
+      <h2 id="imageTitle">Open image</h2>
       <p>Choose an image to add to the canvas.</p>
       <input id="imageInput" type="file" accept="image/*" aria-label="Choose image">
       <div class="dialog-actions"><button type="button" id="cancelImage">Cancel</button><button type="button" id="imageCanvas">Add image</button></div>
     </div>
   </div>
   <div id="cameraDialog" class="dialog-backdrop" hidden>
-    <div class="dialog choice-dialog">
-      <h2>Take a photo</h2>
+    <div class="dialog choice-dialog" role="dialog" aria-modal="true" aria-labelledby="cameraTitle">
+      <h2 id="cameraTitle">Take a photo</h2>
       <p>Allow camera access, then capture an image to place on the canvas.</p>
       <video id="cameraPreview" class="camera-preview" autoplay playsinline></video>
       <div class="camera-adjustments collapsed" aria-label="Advanced photo adjustments"><label>Brightness <input id="cameraBrightness" type="range" min="50" max="150" value="100"><output id="cameraBrightnessValue">100%</output></label><label>Contrast <input id="cameraContrast" type="range" min="50" max="150" value="100"><output id="cameraContrastValue">100%</output></label><label>Color <input id="cameraSaturation" type="range" min="0" max="200" value="100"><output id="cameraSaturationValue">100%</output></label></div>
@@ -165,7 +165,7 @@
       <div class="dialog-actions"><button type="button" id="cancelCamera">Cancel</button><button type="button" id="captureCamera">Capture (Space)</button></div>
     </div>
   </div>
-  <div id="textDialog" class="dialog-backdrop" hidden><form class="dialog" id="textForm"><h2>Add text</h2><input id="textInput" aria-label="Text" placeholder="Type something" autocomplete="off"><label>Size <input id="textSize" type="range" min="12" max="96" value="12"><output id="textSizeValue">12</output></label><div class="dialog-actions"><button type="button" id="cancelText">Cancel</button><button type="submit">Add</button></div></form></div>
+  <div id="textDialog" class="dialog-backdrop" hidden><form class="dialog" id="textForm" role="dialog" aria-modal="true" aria-labelledby="textTitle"><h2 id="textTitle">Add text</h2><input id="textInput" aria-label="Text" placeholder="Type something" autocomplete="off"><label>Size <input id="textSize" type="range" min="12" max="96" value="12"><output id="textSizeValue">12</output></label><div class="dialog-actions"><button type="button" id="cancelText">Cancel</button><button type="submit">Add</button></div></form></div>
   <script>
     const canvas = document.querySelector('#canvas');
     const ctx = canvas.getContext('2d');
@@ -392,6 +392,11 @@
         status.textContent = 'Saved — add it to chat';
       }
     };
+    const dialogOpeners = new Map();
+    function rememberDialogOpener(buttonId, dialogId) { const button = document.querySelector(`#${buttonId}`), backdrop = document.querySelector(`#${dialogId}`); if (!button || !backdrop) return; button.addEventListener('click', () => { dialogOpeners.set(dialogId, button); requestAnimationFrame(() => backdrop.querySelector('input, button, select')?.focus()); }, true); }
+    [['export', 'saveDialog'], ['openImage', 'imageDialog'], ['camera', 'cameraDialog'], ['textTool', 'textDialog']].forEach(([buttonId, dialogId]) => rememberDialogOpener(buttonId, dialogId));
+    ['cancelSave', 'cancelImage', 'cancelCamera', 'cancelText'].forEach(buttonId => document.querySelector(`#${buttonId}`)?.addEventListener('click', () => { const dialog = document.querySelector(`#${buttonId}`).closest('.dialog-backdrop'); dialogOpeners.get(dialog.id)?.focus(); }, true));
+    window.addEventListener('keydown', event => { if (event.key !== 'Escape') return; const backdrop = [...document.querySelectorAll('.dialog-backdrop:not([hidden])')].pop(); if (!backdrop) return; event.preventDefault(); backdrop.hidden = true; if (backdrop.id === 'cameraDialog') stopCamera(); dialogOpeners.get(backdrop.id)?.focus(); });
     const recoveryKey = 'sketchpad-basic-recovery';
     function saveRecovery() { try { localStorage.setItem(recoveryKey, JSON.stringify({ image: canvas.toDataURL('image/png'), rules: rules.value, note: note.value, hasWork: history.length > 0 || Boolean(rules.value || note.value), savedAt: Date.now() })); } catch (error) {} }
     function restoreRecovery() { try { const saved = JSON.parse(localStorage.getItem(recoveryKey) || 'null'); if (!saved?.image || !saved.hasWork) return; if (!confirm('Restore your previous Sketchpad work?')) return; const image = new Image(); image.onload = () => { ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight); ctx.drawImage(image, 0, 0, canvas.clientWidth, canvas.clientHeight); rules.value = saved.rules || ''; note.value = saved.note || ''; status.textContent = 'Previous sketch restored'; }; image.src = saved.image; } catch (error) {} }
