@@ -160,6 +160,7 @@
     const noteSuggestions = document.querySelector('#noteSuggestions');
     [rules, note].forEach(field => { const suggestions = field === rules ? rulesSuggestions : noteSuggestions; field.onfocus = () => { if (!field.value) suggestions.classList.add('show'); }; field.oninput = () => { if (field.value) suggestions.classList.remove('show'); }; });
     document.querySelectorAll('[data-note-target]').forEach(button => button.onclick = () => { const target = button.dataset.noteTarget === 'rules' ? rules : note; const suggestions = target === rules ? rulesSuggestions : noteSuggestions; target.value = button.dataset.note; suggestions.classList.remove('show'); target.focus(); });
+    document.addEventListener('pointerdown', event => { if (!event.target.closest('.note-field')) { rulesSuggestions.classList.remove('show'); noteSuggestions.classList.remove('show'); } });
     const cursorRing = document.querySelector('#cursorRing');
     const board = document.querySelector('.board');
     const labelToggle = document.querySelector('#labelToggle');
