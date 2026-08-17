@@ -386,7 +386,10 @@
         status.textContent = 'Saved — add it to chat';
       }
     };
-    window.addEventListener('resize', resize); updateLabels(); resize();
+    const recoveryKey = 'sketchpad-basic-recovery';
+    function saveRecovery() { try { localStorage.setItem(recoveryKey, JSON.stringify({ image: canvas.toDataURL('image/png'), rules: rules.value, note: note.value, hasWork: history.length > 0 || Boolean(rules.value || note.value), savedAt: Date.now() })); } catch (error) {} }
+    function restoreRecovery() { try { const saved = JSON.parse(localStorage.getItem(recoveryKey) || 'null'); if (!saved?.image || !saved.hasWork) return; if (!confirm('Restore your previous Sketchpad work?')) return; const image = new Image(); image.onload = () => { ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight); ctx.drawImage(image, 0, 0, canvas.clientWidth, canvas.clientHeight); rules.value = saved.rules || ''; note.value = saved.note || ''; status.textContent = 'Previous sketch restored'; }; image.src = saved.image; } catch (error) {} }
+    window.addEventListener('beforeunload', saveRecovery); setInterval(saveRecovery, 5000); window.addEventListener('resize', resize); updateLabels(); resize(); restoreRecovery();
   </script>
 </body>
 </html>
