@@ -5,7 +5,7 @@ Sketchpad Basic is a lightweight visual communication tool for creators. Draw a 
 ## Features
 
 - Pen, eraser, text, and shape tools
-- Shape preview with an anchor point, size adjustment, and rotation before placement
+- Shape preview with an anchor point, size adjustment, and rotation before placement (Line and Arrow draw directly)
 - Neon pink default color for visual emphasis
 - Separate color memory for each tool during the browser session
 - Undo, redo, clear, zoom, and pan
