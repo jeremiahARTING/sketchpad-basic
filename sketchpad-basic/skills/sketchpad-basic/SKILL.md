@@ -5,7 +5,7 @@ description: Help creators communicate visual ideas through simple sketches, not
 
 # Sketchpad Basic
 
-Sketchpad Basic is a lightweight visual thinking tool for creators. It combines rough drawing, text, pasted images, color highlights, notes, and a ChatGPT handoff.
+Sketchpad Basic is a lightweight visual thinking tool for creators. It combines rough drawing, text, camera or pasted images, color highlights, separate rules and creation notes, and a ChatGPT handoff.
 
 ## Opening the app
 
@@ -18,7 +18,8 @@ Do not try to open the app with a `file://` URL or depend on `http://127.0.0.1:8
 When interpreting a Sketchpad Basic drawing:
 
 - Treat marks as visual intent, not finished artwork.
-- Pink marks are intentional highlights. Pay close attention to them and do not ignore them.
+- Treat pink marks as important only when the creator's Rules or note says they are intentional highlights.
+- Treat camera photos as visual reference and drawn marks as annotations on or around the photo.
 - Infer layout, relationships, emphasis, motion, and rough proportions.
 - Ask a concise clarification only when an interpretation would materially change the result.
 - Preserve the creator's stated constraints and distinguish them from guesses.
@@ -33,4 +34,4 @@ Useful interpretation sections are:
 5. Uncertain details
 6. Suggested next step
 
-Keep the experience lightweight. Do not introduce color, complex diagramming, collaboration features, or decorative UI unless the user explicitly asks for them.
+Keep the experience lightweight. Do not assume camera photos, pink emphasis, or other visual treatments are meaningful unless the creator indicates that they are.
