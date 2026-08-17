@@ -362,7 +362,8 @@
         if (line) lines.push(line);
         return lines;
       });
-      const noteHeight = noteLines.length ? 42 + noteLines.length * 24 : 0;
+      const exportScale = canvas.width / Math.max(1, canvas.clientWidth);
+      const noteHeight = noteLines.length ? Math.round((42 + noteLines.length * 24) * exportScale) : 0;
       output.width = canvas.width;
       output.height = canvas.height + noteHeight;
       const outputCtx = output.getContext('2d');
@@ -371,10 +372,10 @@
       outputCtx.drawImage(canvas, 0, 0);
       if (noteLines.length) {
         outputCtx.strokeStyle = '#ddd';
-        outputCtx.beginPath(); outputCtx.moveTo(24, canvas.height + 16); outputCtx.lineTo(output.width - 24, canvas.height + 16); outputCtx.stroke();
+        outputCtx.beginPath(); outputCtx.moveTo(24 * exportScale, canvas.height + 16 * exportScale); outputCtx.lineTo(output.width - 24 * exportScale, canvas.height + 16 * exportScale); outputCtx.stroke();
         outputCtx.fillStyle = '#222';
-        outputCtx.font = '16px Arial, sans-serif';
-        noteLines.forEach((line, index) => outputCtx.fillText(line, 24, canvas.height + 42 + index * 24));
+        outputCtx.font = `${16 * exportScale}px Arial, sans-serif`;
+        noteLines.forEach((line, index) => outputCtx.fillText(line, 24 * exportScale, canvas.height + (42 + index * 24) * exportScale));
       }
       const blob = await new Promise(resolve => output.toBlob(resolve, 'image/png'));
       try {
