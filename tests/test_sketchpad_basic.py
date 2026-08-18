@@ -100,6 +100,11 @@ class SketchpadSmokeTests(unittest.TestCase):
         self.assertIn("pendingAction === 'scale'", APP)
         self.assertIn("pendingAction === 'rotate'", APP)
 
+    def test_transform_handles_have_context_cursors(self):
+        self.assertIn("canvas.style.cursor = 'nwse-resize'", APP)
+        self.assertIn("canvas.style.cursor = 'grab'", APP)
+        self.assertIn("canvas.style.cursor = 'move'", APP)
+
     def test_image_anchor_remains_visible_while_repositioning(self):
         self.assertIn("pendingImage.anchored ? '#ff00ff' : '#ff00ff88'", APP)
         self.assertIn("previewCtx.arc(p.x, p.y, 12", APP)
