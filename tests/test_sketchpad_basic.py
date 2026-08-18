@@ -28,6 +28,11 @@ class SketchpadSmokeTests(unittest.TestCase):
         self.assertIn("function setTool(next) { selecting = false", APP)
         self.assertIn("document.querySelector('#selectTool').classList.remove('active')", APP)
 
+    def test_dialogs_trap_tab_focus(self):
+        self.assertIn("if (event.key === 'Tab')", APP)
+        self.assertIn("event.shiftKey && document.activeElement === first", APP)
+        self.assertIn("!element.disabled && element.offsetParent !== null", APP)
+
     def test_export_handles_high_dpi_and_background_choice(self):
         self.assertIn("const exportScale = canvas.width / Math.max(1, canvas.clientWidth)", APP)
         self.assertIn("const whiteBackground = document.querySelector('#whiteBackground')", APP)
