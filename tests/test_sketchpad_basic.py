@@ -67,6 +67,11 @@ class SketchpadSmokeTests(unittest.TestCase):
     def test_clear_requires_confirmation(self):
         self.assertIn("if (history.length && !confirm('Clear the entire sketch?')) return", APP)
 
+    def test_camera_uses_full_frame_without_crop_control(self):
+        self.assertNotIn('id="cropCamera"', APP)
+        self.assertNotIn('cameraCrop', APP)
+        self.assertIn("snapshotCtx.drawImage(cameraPreview, -sourceW / 2, -sourceH / 2, sourceW, sourceH)", APP)
+
     def test_placement_controls_exist(self):
         self.assertIn('id="placeObject"', APP)
         self.assertIn('id="cancelObject"', APP)
