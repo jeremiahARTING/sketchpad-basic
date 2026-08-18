@@ -44,6 +44,11 @@ class SketchpadSmokeTests(unittest.TestCase):
         self.assertIn("note: note.value", APP)
         self.assertIn("setInterval(saveRecovery, 5000)", APP)
 
+    def test_recovery_seeds_undo_history(self):
+        self.assertIn("const blank = canvas.toDataURL('image/png')", APP)
+        self.assertIn("history = [blank]", APP)
+        self.assertIn("redoStack = []", APP)
+
     def test_placement_controls_exist(self):
         self.assertIn('id="placeObject"', APP)
         self.assertIn('id="cancelObject"', APP)
