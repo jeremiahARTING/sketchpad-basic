@@ -39,7 +39,7 @@ class SketchpadSmokeTests(unittest.TestCase):
     def test_export_handles_high_dpi_and_background_choice(self):
         self.assertIn("const exportScale = canvas.width / Math.max(1, canvas.clientWidth)", APP)
         self.assertIn("const whiteBackground = document.querySelector('#whiteBackground')", APP)
-        self.assertIn("saveFile(filename, whiteBackground.checked)", APP)
+        self.assertIn("saveToSelectedPath(filename, whiteBackground.checked)", APP)
 
     def test_recovery_saves_canvas_and_notes(self):
         self.assertIn("localStorage.setItem(recoveryKey", APP)
@@ -107,6 +107,11 @@ class SketchpadSmokeTests(unittest.TestCase):
         self.assertIn("canvas.style.cursor = 'nwse-resize'", APP)
         self.assertIn("canvas.style.cursor = 'grab'", APP)
         self.assertIn("canvas.style.cursor = 'move'", APP)
+
+    def test_save_remembers_selected_path_for_session(self):
+        self.assertIn("let sessionFileHandle = null", APP)
+        self.assertIn("window.showSaveFilePicker", APP)
+        self.assertIn("sessionFileHandle ? saveToSelectedPath", APP)
 
     def test_image_anchor_remains_visible_while_repositioning(self):
         self.assertIn("pendingImage.anchored ? '#ff00ff' : '#ff00ff88'", APP)
