@@ -84,6 +84,12 @@ class SketchpadSmokeTests(unittest.TestCase):
         self.assertIn('class="dialog choice-dialog camera-dialog" role="dialog" aria-modal="true" aria-labelledby="cameraTitle"', APP)
         self.assertIn('class="dialog choice-dialog" role="dialog" aria-modal="true" aria-labelledby="imageTitle"', APP)
 
+    def test_pasted_images_are_anchored_and_cut_size_is_preserved(self):
+        self.assertIn("lastCutSize = { w: selectedArea.w, h: selectedArea.h }", APP)
+        self.assertIn("const naturalSize = lastCutSize", APP)
+        self.assertIn("naturalSize, point: { x: canvas.clientWidth / 2, y: canvas.clientHeight / 2 }, size: null, scale: 1, rotation: 0, anchored: true", APP)
+        self.assertIn("pendingImage.naturalSize ? 1", APP)
+
     def test_placement_controls_exist(self):
         self.assertIn('id="placeObject"', APP)
         self.assertIn('id="cancelObject"', APP)
