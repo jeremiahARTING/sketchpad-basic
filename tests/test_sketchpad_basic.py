@@ -74,8 +74,8 @@ class SketchpadSmokeTests(unittest.TestCase):
         self.assertIn("if (selecting || selection)", APP)
         self.assertIn("status.textContent = 'Selection cancelled'", APP)
 
-    def test_clear_requires_confirmation(self):
-        self.assertIn("if (history.length && !confirm('Clear the entire sketch?')) return", APP)
+    def test_new_canvas_requires_confirmation(self):
+        self.assertIn("if ((history.length || rules.value || note.value || pendingImage || pendingShape || pendingText) && !confirm('Start a new canvas? Unsaved work will be cleared.')) return", APP)
 
     def test_camera_uses_full_frame_without_crop_control(self):
         self.assertNotIn('id="cropCamera"', APP)
