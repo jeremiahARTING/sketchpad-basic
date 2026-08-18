@@ -24,6 +24,10 @@ class SketchpadSmokeTests(unittest.TestCase):
         self.assertIn("selection = null", APP)
         self.assertIn("document.querySelector('#cut').onclick = cutSelection", APP)
 
+    def test_switching_tools_exits_selection_mode(self):
+        self.assertIn("function setTool(next) { selecting = false", APP)
+        self.assertIn("document.querySelector('#selectTool').classList.remove('active')", APP)
+
     def test_export_handles_high_dpi_and_background_choice(self):
         self.assertIn("const exportScale = canvas.width / Math.max(1, canvas.clientWidth)", APP)
         self.assertIn("const whiteBackground = document.querySelector('#whiteBackground')", APP)
