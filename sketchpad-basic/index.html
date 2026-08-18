@@ -279,9 +279,9 @@
       const p = point(e); const diameter = Number(size.value);
       cursorRing.style.left = `${p.x}px`; cursorRing.style.top = `${p.y}px`;
       cursorRing.style.width = `${diameter}px`; cursorRing.style.height = `${diameter}px`;
-      cursorRing.style.display = tool === 'eraser' ? 'block' : 'none';
+      cursorRing.style.display = tool === 'pen' || tool === 'eraser' ? 'block' : 'none';
     }
-    function setTool(next) { selecting = false; selectionStart = null; selection = null; previewCtx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight); document.querySelector('#selectTool').classList.remove('active'); tool = next; shape = null; useToolColor(); if (tool === 'eraser') { size.value = 30; sizeValue.value = 30; } pen.classList.toggle('active', tool === 'pen'); eraser.classList.toggle('active', tool === 'eraser'); cursorRing.style.display = tool === 'eraser' ? 'block' : 'none'; cursorRing.style.width = `${size.value}px`; cursorRing.style.height = `${size.value}px`; status.textContent = tool === 'pen' ? 'Pen' : tool === 'text' ? 'Text' : 'Eraser'; }
+    function setTool(next) { selecting = false; selectionStart = null; selection = null; previewCtx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight); document.querySelector('#selectTool').classList.remove('active'); tool = next; shape = null; useToolColor(); if (tool === 'eraser') { size.value = 30; sizeValue.value = 30; } pen.classList.toggle('active', tool === 'pen'); eraser.classList.toggle('active', tool === 'eraser'); cursorRing.style.display = tool === 'pen' || tool === 'eraser' ? 'block' : 'none'; cursorRing.style.width = `${size.value}px`; cursorRing.style.height = `${size.value}px`; status.textContent = tool === 'pen' ? 'Pen' : tool === 'text' ? 'Text' : 'Eraser'; }
 
     function drawShape(kind, a, b, target = ctx) {
       const x = Math.min(a.x, b.x), y = Math.min(a.y, b.y), w = Math.abs(b.x - a.x), h = Math.abs(b.y - a.y);
