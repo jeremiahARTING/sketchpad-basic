@@ -91,10 +91,14 @@ class SketchpadSmokeTests(unittest.TestCase):
         self.assertIn("pendingImage.naturalSize ? 1", APP)
 
     def test_placement_controls_exist(self):
-        self.assertIn('id="placeObject"', APP)
-        self.assertIn('id="cancelObject"', APP)
         self.assertIn("commitPendingImage()", APP)
         self.assertIn("commitPendingShape()", APP)
+
+    def test_transform_controls_use_handles(self):
+        self.assertNotIn('id="placeObject"', APP)
+        self.assertNotIn('id="cancelObject"', APP)
+        self.assertIn("pendingAction === 'scale'", APP)
+        self.assertIn("pendingAction === 'rotate'", APP)
 
     def test_image_anchor_remains_visible_while_repositioning(self):
         self.assertIn("pendingImage.anchored ? '#ff00ff' : '#ff00ff88'", APP)
