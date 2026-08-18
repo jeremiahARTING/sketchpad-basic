@@ -28,6 +28,9 @@ class SketchpadSmokeTests(unittest.TestCase):
         self.assertIn("function setTool(next) { selecting = false", APP)
         self.assertIn("document.querySelector('#selectTool').classList.remove('active')", APP)
 
+    def test_cut_exits_select_mode_after_success(self):
+        self.assertIn("selecting = false; selectionStart = null; selection = null; document.querySelector('#selectTool').classList.remove('active')", APP)
+
     def test_dialogs_trap_tab_focus(self):
         self.assertIn("if (event.key === 'Tab')", APP)
         self.assertIn("event.shiftKey && document.activeElement === first", APP)
