@@ -8,16 +8,17 @@ Sketchpad Basic is a lightweight visual communication tool for creators. Draw a 
 - Shape preview with an anchor point, size adjustment, and rotation before placement (Line and Arrow draw directly)
 - Neon pink default color for visual emphasis
 - Separate color memory for each tool during the browser session
-- Undo, redo, clear, zoom, and pan
-- Open, paste, or capture images with the camera
-- Camera preview with switch-camera, timer, crop, and compact advanced adjustments
+- Undo, redo, clear, New canvas, zoom, and pan
+- Open an image directly through the system file picker, paste, or capture images with the camera
+- Camera preview with switch-camera, timer, and compact image adjustments
 - Paste and camera images with move, size, and rotation controls before placement
 - Image placement preview with anchor/reposition workflow
 - Separate Rules for ChatGPT and What to create notes
 - Optional rules for rough concepts, layout, questions, camera photos, and pink highlights
 - Guidance in copied images telling ChatGPT how to interpret the sketch without reproducing the directions
 - Copy-to-Chat workflow that creates a single PNG containing the sketch and notes
-- Save and Save As PNG export
+- Save and Save As PNG export; the first Save chooses a file and later Saves update that same file for the session
+- Copy to Chat always includes a white background for reliable image interpretation
 
 ## Privacy
 

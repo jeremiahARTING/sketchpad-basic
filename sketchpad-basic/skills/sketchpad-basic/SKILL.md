@@ -13,7 +13,7 @@ Use the hosted HTTPS version when opening Sketchpad Basic:
 
 `https://jeremiaharting.github.io/sketchpad-basic/`
 
-Do not try to open the app with a `file://` URL or depend on `http://127.0.0.1:8765`, since those addresses are local to one computer.
+Do not try to open the app with a `file://` URL or depend on a local `http://127.0.0.1` address, since those addresses are local to one computer.
 
 When interpreting a Sketchpad Basic drawing:
 

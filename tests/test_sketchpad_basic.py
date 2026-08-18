@@ -10,6 +10,12 @@ class SketchpadSmokeTests(unittest.TestCase):
         for control in ("canvas", "preview", "undo", "redo", "selectTool", "cut", "save", "send"):
             self.assertIn(f'id="{control}"', APP)
 
+    def test_new_canvas_clears_work_and_notes(self):
+        self.assertIn('id="newCanvas"', APP)
+        self.assertIn("document.querySelector('#newCanvas').onclick", APP)
+        self.assertIn("rules.value = ''; note.value = ''", APP)
+        self.assertIn("history = []; redoStack = []", APP)
+
     def test_eraser_uses_transparent_compositing(self):
         self.assertIn("globalCompositeOperation = tool === 'eraser' ? 'destination-out' : 'source-over'", APP)
 
@@ -36,10 +42,11 @@ class SketchpadSmokeTests(unittest.TestCase):
         self.assertIn("event.shiftKey && document.activeElement === first", APP)
         self.assertIn("!element.disabled && element.offsetParent !== null", APP)
 
-    def test_export_handles_high_dpi_and_background_choice(self):
+    def test_export_uses_native_save_picker_and_white_background(self):
         self.assertIn("const exportScale = canvas.width / Math.max(1, canvas.clientWidth)", APP)
-        self.assertIn("const whiteBackground = document.querySelector('#whiteBackground')", APP)
-        self.assertIn("saveToSelectedPath(filename, whiteBackground.checked)", APP)
+        self.assertIn("saveToSelectedPath('sketchpad-basic.png', true, true)", APP)
+        self.assertNotIn('id="whiteBackground"', APP)
+        self.assertNotIn('id="saveDialog"', APP)
 
     def test_recovery_saves_canvas_and_notes(self):
         self.assertIn("localStorage.setItem(recoveryKey", APP)
@@ -85,7 +92,6 @@ class SketchpadSmokeTests(unittest.TestCase):
     def test_camera_dialog_owns_camera_layout_class(self):
         self.assertIn('id="cameraDialog" class="dialog-backdrop"', APP)
         self.assertIn('class="dialog choice-dialog camera-dialog" role="dialog" aria-modal="true" aria-labelledby="cameraTitle"', APP)
-        self.assertIn('class="dialog choice-dialog" role="dialog" aria-modal="true" aria-labelledby="imageTitle"', APP)
 
     def test_pasted_images_are_anchored_and_cut_size_is_preserved(self):
         self.assertIn("lastCutSize = { w: selectedArea.w, h: selectedArea.h }", APP)
@@ -96,6 +102,12 @@ class SketchpadSmokeTests(unittest.TestCase):
     def test_placement_controls_exist(self):
         self.assertIn("commitPendingImage()", APP)
         self.assertIn("commitPendingShape()", APP)
+
+    def test_open_image_adds_immediately_after_file_selection(self):
+        self.assertIn("imageInput.onchange = chooseImage", APP)
+        self.assertIn("imageInput.click()", APP)
+        self.assertNotIn('id="imageDialog"', APP)
+        self.assertNotIn('id="imageCanvas"', APP)
 
     def test_transform_controls_use_handles(self):
         self.assertNotIn('id="placeObject"', APP)
@@ -111,7 +123,7 @@ class SketchpadSmokeTests(unittest.TestCase):
     def test_save_remembers_selected_path_for_session(self):
         self.assertIn("let sessionFileHandle = null", APP)
         self.assertIn("window.showSaveFilePicker", APP)
-        self.assertIn("sessionFileHandle ? saveToSelectedPath", APP)
+        self.assertIn("document.querySelector('#save').onclick = () => saveToSelectedPath('sketchpad-basic.png', true)", APP)
 
     def test_image_anchor_remains_visible_while_repositioning(self):
         self.assertIn("pendingImage.anchored ? '#ff00ff' : '#ff00ff88'", APP)
