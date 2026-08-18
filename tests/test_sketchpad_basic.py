@@ -72,6 +72,13 @@ class SketchpadSmokeTests(unittest.TestCase):
         self.assertNotIn('cameraCrop', APP)
         self.assertIn("snapshotCtx.drawImage(cameraPreview, -sourceW / 2, -sourceH / 2, sourceW, sourceH)", APP)
 
+    def test_camera_controls_use_clear_labels(self):
+        self.assertIn('id="toggleCameraAdjustments"', APP)
+        self.assertIn('>Adjust image</button>', APP)
+        self.assertIn('>Capture photo</button>', APP)
+        self.assertIn('>Saturation <input id="cameraSaturation"', APP)
+        self.assertIn("Hide adjustments", APP)
+
     def test_placement_controls_exist(self):
         self.assertIn('id="placeObject"', APP)
         self.assertIn('id="cancelObject"', APP)
