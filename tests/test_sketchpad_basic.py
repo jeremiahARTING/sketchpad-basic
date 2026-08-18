@@ -53,6 +53,20 @@ class SketchpadSmokeTests(unittest.TestCase):
         self.assertIn("URL.revokeObjectURL(objectUrl)", APP)
         self.assertIn("setTimeout(() => URL.revokeObjectURL(objectUrl), 0)", APP)
 
+    def test_paste_ignores_form_fields(self):
+        self.assertIn("event.target.closest('input, textarea, select, [contenteditable=\"true\"]')", APP)
+
+    def test_cut_only_clears_after_clipboard_success(self):
+        self.assertIn("snapshot(); ctx.clearRect(selectedArea.x", APP)
+        self.assertIn("area was not cut", APP)
+
+    def test_escape_cancels_selection(self):
+        self.assertIn("if (selecting || selection)", APP)
+        self.assertIn("status.textContent = 'Selection cancelled'", APP)
+
+    def test_clear_requires_confirmation(self):
+        self.assertIn("if (history.length && !confirm('Clear the entire sketch?')) return", APP)
+
     def test_placement_controls_exist(self):
         self.assertIn('id="placeObject"', APP)
         self.assertIn('id="cancelObject"', APP)

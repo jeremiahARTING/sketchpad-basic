@@ -14,6 +14,14 @@ Sketchpad Basic is a lightweight visual communication plugin for ChatGPT. Draw a
 - Copy a single image that includes the sketch, notes, and guidance for ChatGPT
 - Save your work as a PNG
 
+## Current features
+
+- Select and cut an area, with clipboard protection when copying is unavailable
+- Restore a previous sketch after refresh or accidental navigation
+- Keyboard shortcuts including Undo, Redo, Escape, and brush-size brackets
+- Save PNGs with an optional white background or transparency
+- Live app: [jeremiaharting.github.io/sketchpad-basic](https://jeremiaharting.github.io/sketchpad-basic/)
+
 ## Validation
 
 Run the dependency-free smoke tests locally with:
