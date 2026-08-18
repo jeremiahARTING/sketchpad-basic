@@ -49,6 +49,10 @@ class SketchpadSmokeTests(unittest.TestCase):
         self.assertIn("history = [blank]", APP)
         self.assertIn("redoStack = []", APP)
 
+    def test_object_urls_are_revoked(self):
+        self.assertIn("URL.revokeObjectURL(objectUrl)", APP)
+        self.assertIn("setTimeout(() => URL.revokeObjectURL(objectUrl), 0)", APP)
+
     def test_placement_controls_exist(self):
         self.assertIn('id="placeObject"', APP)
         self.assertIn('id="cancelObject"', APP)
