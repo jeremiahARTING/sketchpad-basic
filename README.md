@@ -14,6 +14,16 @@ Sketchpad Basic is a lightweight visual communication plugin for ChatGPT. Draw a
 - Copy a single image that includes the sketch, notes, and guidance for ChatGPT
 - Save your work as a PNG
 
+## Validation
+
+Run the dependency-free smoke tests locally with:
+
+```text
+python -m unittest discover -s tests -p "test_*.py" -v
+```
+
+The same tests run automatically in GitHub Actions for pushes and pull requests.
+
 ## How to use it
 
 1. Open Sketchpad Basic in Codex.
