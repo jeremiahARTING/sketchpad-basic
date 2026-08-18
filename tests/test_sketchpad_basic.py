@@ -79,6 +79,11 @@ class SketchpadSmokeTests(unittest.TestCase):
         self.assertIn('>Saturation <input id="cameraSaturation"', APP)
         self.assertIn("Hide adjustments", APP)
 
+    def test_camera_dialog_owns_camera_layout_class(self):
+        self.assertIn('id="cameraDialog" class="dialog-backdrop"', APP)
+        self.assertIn('class="dialog choice-dialog camera-dialog" role="dialog" aria-modal="true" aria-labelledby="cameraTitle"', APP)
+        self.assertIn('class="dialog choice-dialog" role="dialog" aria-modal="true" aria-labelledby="imageTitle"', APP)
+
     def test_placement_controls_exist(self):
         self.assertIn('id="placeObject"', APP)
         self.assertIn('id="cancelObject"', APP)
