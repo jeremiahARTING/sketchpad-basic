@@ -96,6 +96,10 @@ class SketchpadSmokeTests(unittest.TestCase):
         self.assertIn("commitPendingImage()", APP)
         self.assertIn("commitPendingShape()", APP)
 
+    def test_image_anchor_remains_visible_while_repositioning(self):
+        self.assertIn("pendingImage.anchored ? '#ff00ff' : '#ff00ff88'", APP)
+        self.assertIn("previewCtx.arc(p.x, p.y, 12", APP)
+
 
 if __name__ == "__main__":
     unittest.main()
