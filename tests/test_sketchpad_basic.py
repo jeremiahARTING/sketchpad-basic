@@ -23,6 +23,11 @@ class SketchpadSmokeTests(unittest.TestCase):
         self.assertIn("redoStack.push(canvas.toDataURL())", APP)
         self.assertIn("restore(history.pop())", APP)
         self.assertIn("history.push(canvas.toDataURL())", APP)
+
+    def test_x_emulates_right_button_hold(self):
+        self.assertIn("let keyboardRightButton = false", APP)
+        self.assertIn("dispatchKeyboardPointer('pointerdown')", APP)
+        self.assertIn("dispatchKeyboardPointer('pointerup')", APP)
         self.assertIn("restore(redoStack.pop())", APP)
 
     def test_selection_and_cut_are_wired(self):
